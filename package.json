@@ -8,7 +8,10 @@
   },
   "author": "Lei",
   "license": "ISC",
+  "repository": "https://github.com/leixdd/BCPSync.git",
   "dependencies": {
+    "chalk": "^3.0.0",
+    "cli-progress": "^3.6.1",
     "mssql": "^6.2.0"
   }
 }
