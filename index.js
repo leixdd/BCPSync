@@ -6,7 +6,14 @@ const _colors = require('chalk');
 const connection_pool = new sql.ConnectionPool(mssql_config);
 const grade_pool = connection_pool.connect();
 
-let grdWeight = 0;
+// create new progress bar
+const pB_grades = new cliProgress.SingleBar({
+    format: 'Downloading Grades Progress |' + _colors.cyan('{bar}') + '| {percentage}% || {value}/{total} Rows ',
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+    hideCursor: true
+});
+
 
 const gradeRecordSetWeight = (pool) => {
 
@@ -22,7 +29,8 @@ const gradeRecordSetWeight = (pool) => {
             if (result === 'undefined') {
                 reject(err);
             }
-            console.log(result);
+            //initialize the progress bar
+            pB_grades.start(result.recordset[0].totalGrades, 0);
             resolve(pool);
         });
     });
@@ -54,12 +62,16 @@ const getGrades = async () => {
                 `);
 
                 request.on('row', row => {
-                    console.log(row);
+                    pB_grades.increment();
                 });
 
                 request.on('error', err => {
                     console.log(err);
                 });
+
+                request.on('done', data => {
+                    pB_grades.stop();
+                })
 
             }).catch(err => {
                 console.log(err); //SQL Error
@@ -71,26 +83,8 @@ const getGrades = async () => {
 }
 
 
-// create new progress bar
-const b1 = new cliProgress.SingleBar({
-    format: 'CLI Progress |' + _colors.cyan('{bar}') + '| {percentage}% || {value}/{total} Chunks || Speed: {speed}',
-    barCompleteChar: '\u2588',
-    barIncompleteChar: '\u2591',
-    hideCursor: true
-});
-
-// initialize the bar - defining payload token "speed" with the default value "N/A"
-b1.start(200000, 0, {
-    speed: "N/A"
-});
-
-// update values
-for (let i = 0; i < 200000; i++) {
-    
-    b1.increment();
-    b1.update(i);
-}
+getGrades();
 
 
 // stop the bar
-//b1.stop();
+b1.stop();
