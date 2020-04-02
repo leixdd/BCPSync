@@ -39,7 +39,7 @@ const gradeRecordSetWeight = (pool) => {
 
 
 const getGrades = async () => {
-    grade_pool
+    await grade_pool
         .then((pool) => gradeRecordSetWeight(pool)
 
             .then((result_pool) => {
@@ -70,11 +70,9 @@ const getGrades = async () => {
                 });
 
                 request.on('done', data => {
-                    console.log(data);
+                    pB_grades.stop();
                 })
 
-            }).catch(err => {
-                console.log(err); //SQL Error
             })
 
         ).catch(err => {
@@ -85,4 +83,4 @@ const getGrades = async () => {
 
 getGrades();
 
-pB_grades.stop();
+console.log('test');
