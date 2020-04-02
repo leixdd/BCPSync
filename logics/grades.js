@@ -5,10 +5,15 @@ const mssql_config = require('../config/mssql');
 const cliProgress = require('cli-progress');
 const connection_pool = new sql.ConnectionPool(mssql_config);
 const grade_pool = connection_pool.connect();
+const ORM = require('./logics/mysqlORM');
 
 let grades_checksum = 0;
 let grades_rows = 0;
 let grades = [];
+
+
+
+
 const pB_grades = new cliProgress.SingleBar({
     format: 'Downloading Grades : Progress |' + _colors.greenBright('{bar}') + '| {percentage}% || {value}/{total} Rows ',
     barCompleteChar: '\u2588',
@@ -63,6 +68,7 @@ const Grades = async () => {
 
                 request.query(`
                 SELECT 
+                TOP 1
                 dbo.ES_Grades.StudentNo,     
                 dbo.ES_Subjects.SubjectCode, 
                 dbo.ES_Subjects.SubjectTitle, 
@@ -89,7 +95,7 @@ const Grades = async () => {
                     pB_grades.stop();
                     m.success('Download Complete!.');
                     m.log('Initiating Upload to Backend Servers');
-                    console.log(grades);
+                    UpdateGradesToBackend();
                 })
 
             })
@@ -98,6 +104,10 @@ const Grades = async () => {
             m.error_(err); //SQL Error
         });
 };
+
+const UpdateGradesToBackend = () => {
+    
+}
 
 module.exports = {
     getGrades: Grades

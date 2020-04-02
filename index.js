@@ -3,7 +3,7 @@ const grades_lists = [];
 const grades_logic = require('./logics/grades');
 
 console.log(
-`
+    `
 ==========================================
 ${_colors.blueBright('BCP')} ${_colors.greenBright('Sync')} v1
 ------------------------------------------
@@ -16,4 +16,3 @@ Database to BCP Backend Servers
 
 grades_logic.getGrades();
 
-require('./logics/mysqlORM').UpdateOrInsert();
