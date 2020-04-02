@@ -1,0 +1,14 @@
+{
+  "name": "synchro",
+  "version": "1.0.0",
+  "description": "BCP Sync Data from School Server to Web Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lei",
+  "license": "ISC",
+  "dependencies": {
+    "mssql": "^6.2.0"
+  }
+}
