@@ -3,6 +3,6 @@ A simple app that sync data from Princetech Integrated School Management System 
 
 ## MODULES
     
-    [ ] Grade Sync
-    [x] Outstanding Balance Sync
-    [x] SOA 
+   - [ ] Grade Sync
+   - [x] Outstanding Balance Sync
+   - [x] SOA 
