@@ -1,6 +1,7 @@
 const sql = require('mssql');
 const cliProgress = require('cli-progress');
 const mssql_config = require('./config/mssql');
+const _colors = require('chalk');
 
 const connection_pool = new sql.ConnectionPool(mssql_config);
 const grade_pool = connection_pool.connect();
@@ -67,28 +68,6 @@ const getGrades = async () => {
         ).catch(err => {
             console.log(err); //SQL Error
         });
-
-    // try {
-    //     // make sure that any items are correctly URL encoded in the connection string
-    //     await sql.connect(mssql_config, err => {
-
-    //         const request = new sql.Request();
-    //         request.stream = true;
-
-
-
-    //         request.on('row', row => {
-    //             console.log(row);
-    //         });
-
-    //         request.on('error', err => {
-    //             console.log(err);
-    //         });
-
-    //     });
-    // } catch (err) {
-    //     console.log(err);
-    // }
 }
 
 
@@ -99,15 +78,19 @@ const b1 = new cliProgress.SingleBar({
     barIncompleteChar: '\u2591',
     hideCursor: true
 });
- 
+
 // initialize the bar - defining payload token "speed" with the default value "N/A"
-b1.start(200, 0, {
+b1.start(200000, 0, {
     speed: "N/A"
 });
- 
+
 // update values
-b1.increment();
-b1.update(20);
- 
+for (let i = 0; i < 200000; i++) {
+    
+    b1.increment();
+    b1.update(i);
+}
+
+
 // stop the bar
-b1.stop();
+//b1.stop();

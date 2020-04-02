@@ -3,5 +3,9 @@ module.exports = {
     password: '',
     server: '',
     port: ,
-    database: ''
+    database: '',
+    "options": {
+        "encrypt": true,
+        "enableArithAbort": true
+    },
 }
