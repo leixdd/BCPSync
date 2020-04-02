@@ -5,17 +5,21 @@ const mssql_config = require('../config/mssql');
 const cliProgress = require('cli-progress');
 const connection_pool = new sql.ConnectionPool(mssql_config);
 const grade_pool = connection_pool.connect();
-const ORM = require('./logics/mysqlORM');
+const ORM = require('../logics/mysqlORM');
 
 let grades_checksum = 0;
 let grades_rows = 0;
 let grades = [];
 
-
-
-
 const pB_grades = new cliProgress.SingleBar({
     format: 'Downloading Grades : Progress |' + _colors.greenBright('{bar}') + '| {percentage}% || {value}/{total} Rows ',
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+    hideCursor: false
+});
+
+const pB_Upload = new cliProgress.SingleBar({
+    format: 'Uploading Grades : Progress |' + _colors.blueBright('{bar}') + '| {percentage}% || {value}/{total} Rows ',
     barCompleteChar: '\u2588',
     barIncompleteChar: '\u2591',
     hideCursor: false
@@ -26,7 +30,8 @@ const gradeRecordSetWeight = (pool) => {
     return new Promise((resolve, reject) => {
         m.log('Calculating Checksum and total rows of Grades Table. Please Wait!');
         pool.request().query(`
-        SELECT     
+        SELECT
+        TOP 2     
         count(*) as totalGrades,
         CHECKSUM_AGG(BINARY_CHECKSUM(*)) as checksum
         FROM         
@@ -68,7 +73,7 @@ const Grades = async () => {
 
                 request.query(`
                 SELECT 
-                TOP 1
+                TOP 2
                 dbo.ES_Grades.StudentNo,     
                 dbo.ES_Subjects.SubjectCode, 
                 dbo.ES_Subjects.SubjectTitle, 
@@ -106,7 +111,14 @@ const Grades = async () => {
 };
 
 const UpdateGradesToBackend = () => {
-    
+    pB_Upload.start(grades.length, 0);
+    grades.map(data => {
+        ORM.UpdateOrInsert('grades', data, {
+            StudentNo: data.StudentNo,
+            SubjectCode: data.SubjectCode
+        });
+        pB_Upload.increment();
+    });
 }
 
 module.exports = {

@@ -33,14 +33,16 @@ class orm_functions {
             whereStack.push(objects + " = ?");
         });
 
-        Build += setStack.toString() + " WHERE " + whereStack;
+        Build += setStack.toString() + " WHERE " + whereStack.join(" and ");
 
         let setStack_vals = Object.values(values);
         let whereStack_vals = Object.values(whereClause);
-        
-        let sql = connection.format(Build, setStack_vals.concat(whereStack_vals));
 
-        console.log(sql);
+        connection.query(Build, setStack_vals.concat(whereStack_vals), (err, res, fields) => {
+            if (err) m.error_(err);
+            console.log('updated ' + res.changedRows  + ' rows');
+        });
+
 
     }
 }
