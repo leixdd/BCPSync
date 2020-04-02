@@ -1,8 +1,8 @@
 const sql = require('mssql');
-const mssql_config = require('../config/mssql');
 const _colors = require('chalk');
+const m = require('./messages');
+const mssql_config = require('../config/mssql');
 const cliProgress = require('cli-progress');
-
 const connection_pool = new sql.ConnectionPool(mssql_config);
 const grade_pool = connection_pool.connect();
 
@@ -16,40 +16,10 @@ const pB_grades = new cliProgress.SingleBar({
     hideCursor: false
 });
 
-const error_ = (err) => {
-    $error_code = typeof err.code === 'undefined' ? "" : err.code;
-    console.log('');
-    switch (err.code) {
-        case 'ETIMEOUT':
-            console.log(
-                `STATUS: ${_colors.black.bgRedBright(" TIMEOUT ERROR ")},\nERROR: ${err}
-            `);
-            break;
-        default:
-            console.log(
-                `STATUS: ${_colors.black.bgRedBright(" ERROR ")},\nERROR: ${err}
-            `)
-            break;
-    }
-    console.log('');
-};
-
-const success = (msg) => {
-    console.log(`${_colors.bgGreenBright.black(" SUCCESS ")}: ${msg} 
-
-    `);
-}
-
-const log = (msg) => {
-    console.log(`${msg}
-
-    `);
-}
-
 const gradeRecordSetWeight = (pool) => {
 
     return new Promise((resolve, reject) => {
-        log('Calculating Checksum and total rows of Grades Table. Please Wait!');
+        m.log('Calculating Checksum and total rows of Grades Table. Please Wait!');
         pool.request().query(`
         SELECT     
         count(*) as totalGrades,
@@ -63,11 +33,11 @@ const gradeRecordSetWeight = (pool) => {
                 reject(err);
             } else {
 
-                success('Calculation Complete!.');
+                m.success('Calculation Complete!.');
                 //initialize the progress bar
                 grades_checksum = result.recordset[0].checksum;
                 grades_rows = result.recordset[0].totalGrades;
-                
+
                 console.log("Grade table checksum: " + _colors.green(grades_checksum))
                 console.log("Total rows: " + _colors.green(grades_rows))
 
@@ -117,15 +87,15 @@ const Grades = async () => {
 
                 request.on('done', data => {
                     pB_grades.stop();
-                    success('Download Complete!.');
-                    log('Initiating Upload to Backend Servers');
+                    m.success('Download Complete!.');
+                    m.log('Initiating Upload to Backend Servers');
                     console.log(grades);
                 })
 
             })
 
         ).catch(err => {
-            error_(err); //SQL Error
+            m.error_(err); //SQL Error
         });
 };
 
