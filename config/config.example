@@ -1,0 +1,11 @@
+module.exports = {
+    user: '',
+    password: '',
+    server: '',
+    port: ,
+    database: '',
+    "options": {
+        "encrypt": true,
+        "enableArithAbort": true
+    },
+}
