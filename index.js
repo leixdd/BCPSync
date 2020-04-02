@@ -11,7 +11,7 @@ const pB_grades = new cliProgress.SingleBar({
     format: 'Downloading Grades Progress |' + _colors.greenBright('{bar}') + '| {percentage}% || {value}/{total} Rows ',
     barCompleteChar: '\u2588',
     barIncompleteChar: '\u2591',
-    hideCursor: true
+    hideCursor: false
 });
 
 
