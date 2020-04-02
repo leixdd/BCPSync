@@ -15,3 +15,5 @@ Database to BCP Backend Servers
 `);
 
 grades_logic.getGrades();
+
+require('./logics/mysqlORM').UpdateOrInsert();

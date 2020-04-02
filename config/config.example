@@ -1,11 +1,21 @@
-module.exports = {
+//mssql
+{
     user: '',
     password: '',
     server: '',
-    port: ,
+    port: 0,
     database: '',
     "options": {
         "encrypt": true,
         "enableArithAbort": true
     },
+}
+
+//mysql
+{
+  host     : 'localhost',
+  user     : 'me',
+  password : 'secret',
+  database : 'my_db',
+  port: 0
 }
