@@ -12,6 +12,7 @@
   "dependencies": {
     "chalk": "^3.0.0",
     "cli-progress": "^3.6.1",
-    "mssql": "^6.2.0"
+    "mssql": "^6.2.0",
+    "mysql": "^2.18.1"
   }
 }
