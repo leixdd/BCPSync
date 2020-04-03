@@ -19,13 +19,6 @@ const pB_grades = new cliProgress.SingleBar({
     hideCursor: false
 });
 
-const pB_Upload = new cliProgress.SingleBar({
-    format: 'Uploading Grades : Progress |' + _colors.blueBright('{bar}') + '| {percentage}% || {value}/{total} Rows ',
-    barCompleteChar: '\u2588',
-    barIncompleteChar: '\u2591',
-    hideCursor: false
-});
-
 const pB_Generate = new cliProgress.SingleBar({
     format: 'Generating Queries : Progress |' + _colors.redBright('{bar}') + '| {percentage}% || {value}/{total} Rows ',
     barCompleteChar: '\u2588',
@@ -127,29 +120,60 @@ const GenerateUpdateQueries = () => {
         pB_Generate.increment();
     }
     pB_Generate.stop();
-    pB_Upload.start(list_update_queries.length, 0);
     UpdateGradesToBackend(list_update_queries);
 
 }
 
 const UpdateGradesToBackend = (queries) => {
-    ORM.getConnectionPool().getConnection((err, connection) => {
+    ORM.getConnectionPool().getConnection(async (err, connection) => {
         if (err) m.error_(err);
+
         let promise_collections = [];
 
+        let pB_Upload = new cliProgress.SingleBar({
+            format: 'Uploading Grades : Progress |' + _colors.blueBright('{bar}') + '| {percentage}% || {value}/{total} Rows ',
+            barCompleteChar: '\u2588',
+            barIncompleteChar: '\u2591',
+            hideCursor: false
+        });
+
         queries.map(query => {
-            promise_collections.push(() => {
+            promise_collections.push((pb) => {
                 return new Promise((resolve) => {
                     connection.query(query, (err, res, fields) => {
                         if (err) m.error_(err);
-                        pB_Upload.increment();
+                        pb.increment();
+                        resolve(1);
                     });
                 });
             });
         });
-        
-        console.log(promise_collections.length);
-    //    let = _.chunk()
+
+        let promise_batch = lodash.chunk(promise_collections, Math.round((promise_collections.length * 0.1)))
+
+        let multibar = new cliProgress.MultiBar({
+            clearOnComplete: false,
+            hideCursor: true,
+            format: `Uploading Grades BATCH # {batch} : Progress |` + _colors.blueBright('{bar}') + '| {percentage}% || {value}/{total} Rows ',
+            barCompleteChar: '\u2588',
+            barIncompleteChar: '\u2591',
+
+        }, cliProgress.Presets.shades_grey);
+
+        await promise_batch.reduce(async (previousBatch, currentBatch, index) => {
+            await previousBatch;
+
+            let m = multibar.create(currentBatch.length, 0, {
+                batch: index
+            });
+
+            const currentBatchPromises = currentBatch.map(asyncFunction => asyncFunction(m))
+            const result = await Promise.all(currentBatchPromises);
+
+            m.stop();
+        }, Promise.resolve());
+
+
     });
 };
 
