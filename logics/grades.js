@@ -73,7 +73,6 @@ const Grades = async () => {
 
                 request.query(`
                 SELECT   
-                TOP 100
                 dbo.ES_Grades.StudentNo,     
                 dbo.ES_Subjects.SubjectCode, 
                 dbo.ES_Subjects.SubjectTitle, 
@@ -149,7 +148,7 @@ const UpdateGradesToBackend = (queries) => {
             });
         });
 
-        let promise_batch = lodash.chunk(promise_collections, Math.round((promise_collections.length * 0.1)))
+        let promise_batch = lodash.chunk(promise_collections, Math.round((promise_collections.length * 0.05)))
 
         let multibar = new cliProgress.MultiBar({
             clearOnComplete: false,
