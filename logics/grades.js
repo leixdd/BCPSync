@@ -6,6 +6,7 @@ const cliProgress = require('cli-progress');
 const connection_pool = new sql.ConnectionPool(mssql_config);
 const grade_pool = connection_pool.connect();
 const ORM = require('../logics/mysqlORM');
+const lodash = require('lodash');
 
 let grades_checksum = 0;
 let grades_rows = 0;
@@ -25,13 +26,19 @@ const pB_Upload = new cliProgress.SingleBar({
     hideCursor: false
 });
 
+const pB_Generate = new cliProgress.SingleBar({
+    format: 'Generating Queries : Progress |' + _colors.redBright('{bar}') + '| {percentage}% || {value}/{total} Rows ',
+    barCompleteChar: '\u2588',
+    barIncompleteChar: '\u2591',
+    hideCursor: false
+});
+
 const gradeRecordSetWeight = (pool) => {
 
     return new Promise((resolve, reject) => {
         m.log('Calculating Checksum and total rows of Grades Table. Please Wait!');
         pool.request().query(`
-        SELECT
-        TOP 2     
+        SELECT  
         count(*) as totalGrades,
         CHECKSUM_AGG(BINARY_CHECKSUM(*)) as checksum
         FROM         
@@ -72,8 +79,8 @@ const Grades = async () => {
                 request.stream = true;
 
                 request.query(`
-                SELECT 
-                TOP 2
+                SELECT   
+                TOP 100
                 dbo.ES_Grades.StudentNo,     
                 dbo.ES_Subjects.SubjectCode, 
                 dbo.ES_Subjects.SubjectTitle, 
@@ -100,7 +107,7 @@ const Grades = async () => {
                     pB_grades.stop();
                     m.success('Download Complete!.');
                     m.log('Initiating Upload to Backend Servers');
-                    UpdateGradesToBackend();
+                    GenerateUpdateQueries();
                 })
 
             })
@@ -110,16 +117,41 @@ const Grades = async () => {
         });
 };
 
-const UpdateGradesToBackend = () => {
-    pB_Upload.start(grades.length, 0);
-    grades.map(data => {
-        ORM.UpdateOrInsert('grades', data, {
-            StudentNo: data.StudentNo,
-            SubjectCode: data.SubjectCode
-        });
-        pB_Upload.increment();
-    });
+const GenerateUpdateQueries = () => {
+    pB_Generate.start(grades.length, 0);
+    const list_update_queries = [];
+    for (const data of grades) {
+        let q =
+            ORM.GenerateInsertQuery('grades', data);
+        list_update_queries.push(q);
+        pB_Generate.increment();
+    }
+    pB_Generate.stop();
+    pB_Upload.start(list_update_queries.length, 0);
+    UpdateGradesToBackend(list_update_queries);
+
 }
+
+const UpdateGradesToBackend = (queries) => {
+    ORM.getConnectionPool().getConnection((err, connection) => {
+        if (err) m.error_(err);
+        let promise_collections = [];
+
+        queries.map(query => {
+            promise_collections.push(() => {
+                return new Promise((resolve) => {
+                    connection.query(query, (err, res, fields) => {
+                        if (err) m.error_(err);
+                        pB_Upload.increment();
+                    });
+                });
+            });
+        });
+        
+        console.log(promise_collections.length);
+    //    let = _.chunk()
+    });
+};
 
 module.exports = {
     getGrades: Grades

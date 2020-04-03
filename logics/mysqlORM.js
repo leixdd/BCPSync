@@ -6,6 +6,20 @@ connection.connect((err) => {
     if (err) m.error_(err);
 });
 
+connection.on('error', (err) => {
+    if (err) m.error_(err);
+})
+
+const updatePool = mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'bcp_portal',
+    port: 3306,
+    multipleStatements: true,
+    connectTimeout: 0
+});
+
 class orm_functions {
 
     /**
@@ -17,7 +31,22 @@ class orm_functions {
      * @param {*} whereClause 
      * @param {*} values 
      */
-    static UpdateOrInsert(table, values, whereClause = []) {
+
+    static GenerateInsertQuery(table, values) {
+        let Build = 'INSERT INTO ' + table;
+
+        let setStack = [];
+        //Columns Stack Set [column = ?]
+        Object.keys(values).map(objects => {
+            setStack.push("?");
+        });
+        Build += "(" + Object.keys(values).toString() + ") VALUES (" + setStack.toString() +")";
+        let setStack_vals = Object.values(values);
+        return connection.format(Build, setStack_vals);
+
+    }
+
+    static GenerateUpdateQuery(table, values, whereClause = []) {
         let Build = 'UPDATE ' + table + " SET ";
 
         let setStack = [];
@@ -38,12 +67,12 @@ class orm_functions {
         let setStack_vals = Object.values(values);
         let whereStack_vals = Object.values(whereClause);
 
-        connection.query(Build, setStack_vals.concat(whereStack_vals), (err, res, fields) => {
-            if (err) m.error_(err);
-            console.log('updated ' + res.changedRows  + ' rows');
-        });
+        return connection.format(Build, setStack_vals.concat(whereStack_vals));
 
+    }
 
+    static getConnectionPool() {
+        return updatePool;
     }
 }
 
