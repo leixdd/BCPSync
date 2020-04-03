@@ -7,7 +7,7 @@
    - [x] Grade Sync
    - [ ] Outstanding Balance Sync
    - [ ] SOA 
-   - [ ] Update BCP Backend Server
+   - [x] Update BCP Backend Server
 
 
 ## Dev Notes
