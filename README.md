@@ -1,6 +1,7 @@
 # BCPSync
 
-   A simple app that sync data from Princetech Integrated School Management System Database to BCP Backend Servers
+   A simple app that sync data from Princetech Integrated School Management System Database to BCP Backend Servers, 
+   Built with Node.js
 
 ## MODULES
     
@@ -9,7 +10,10 @@
    - [ ] SOA 
    - [x] Update BCP Backend Server
 
+## Screenshot
 
+   ![BCPSYNC Grades](https://imgur.com/tmpLRXi)
+   
 ## Dev Notes
 
    😂😂😂
