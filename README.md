@@ -12,7 +12,7 @@
 
 ## Screenshot
 
-   ![BCPSYNC Grades](https://imgur.com/tmpLRXi)
+   [BCP Sync Grades](https://imgur.com/tmpLRXi)
    
 ## Dev Notes
 
